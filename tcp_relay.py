@@ -35,11 +35,10 @@ class RelayServer(asyncore.dispatcher):
     def handle_accept(self):
 		global CLIENT_NUM
 		pair = self.accept()
-		print 'HELLO'
 		if pair is not None:
 			sock, addr = pair
 			CLIENT_SOCKS.append(sock)
-			print 'connected'
+			print str(CLIENT_NUM) + ' connected'
 			handler = MyHandler(sock, CLIENT_NUM)
 			CLIENT_NUM = CLIENT_NUM + 1
 
@@ -50,8 +49,8 @@ class RelayServer(asyncore.dispatcher):
 
 if __name__ == "__main__":
 
-	server1 = RelayServer('localhost', 9002)
-	server2 = RelayServer('localhost', 9003)
+	server1 = RelayServer('0.0.0.0', 9002)
+	server2 = RelayServer('0.0.0.0', 9003)
 	try:
 		asyncore.loop()
 	except:

@@ -37,8 +37,6 @@ class EchoClient(asyncore.dispatcher):
 		self.buffer = self.buffer[sent:]
 		
 
-client = EchoClient('localhost', 9002)
-client = EchoClient('localhost', 9003)
-#client = EchoClient('localhost', 9001)
-#client = EchoClient('localhost', 9001)
+client = EchoClient('10.73.44.30', 9002)
+#client = EchoClient('10.73.44.31', 9003)
 asyncore.loop()
