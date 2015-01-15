@@ -4,6 +4,7 @@ __author__ = 'sm9'
 import asyncore, socket
 
 CLIENT_SOCKS = []
+CLIENT_NUM = 0
 
 def relay(sock, message):
     try:
@@ -15,13 +16,12 @@ def relay(sock, message):
 class MyHandler(asyncore.dispatcher_with_send):
 	def __init__(self, sock, clientNum):
 		asyncore.dispatcher_with_send.__init__(self, sock)
-		self.myNum = clientNum
+		self.targetClientNum = 1 - clientNum % 2
 
 	def handle_read(self):
 		data = self.recv(8192)
 		if data:
-			target = 1 - self.myNum % 2
-			relay(CLIENT_SOCKS[target], data)
+			relay(CLIENT_SOCKS[self.targetClientNum], data)
 
 class RelayServer(asyncore.dispatcher):
 
@@ -31,16 +31,17 @@ class RelayServer(asyncore.dispatcher):
 		self.set_reuse_addr()
 		self.bind((host, port))
 		self.listen(2)
-		self.clientIssueNum = 0
 
     def handle_accept(self):
-        pair = self.accept()
-        if pair is not None:
+		global CLIENT_NUM
+		pair = self.accept()
+		print 'HELLO'
+		if pair is not None:
 			sock, addr = pair
 			CLIENT_SOCKS.append(sock)
-			print CLIENT_SOCKS.__str__()
-			handler = MyHandler(sock, self.clientIssueNum)
-			self.clientIssueNum += 1
+			print 'connected'
+			handler = MyHandler(sock, CLIENT_NUM)
+			CLIENT_NUM = CLIENT_NUM + 1
 
     def handle_close(self):
         print 'CLOSED'
@@ -49,5 +50,10 @@ class RelayServer(asyncore.dispatcher):
 
 if __name__ == "__main__":
 
-    server = RelayServer('localhost', 9001)
-    asyncore.loop()
+	server1 = RelayServer('localhost', 9002)
+	server2 = RelayServer('localhost', 9003)
+	try:
+		asyncore.loop()
+	except:
+		print 'EXIT NOW'
+	
